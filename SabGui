@@ -1,0 +1,390 @@
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local player = Players.LocalPlayer
+local playerGui = player:FindFirstChild("PlayerGui") or player:WaitForChild("PlayerGui", 5)
+
+-- Full-screen overlay (persistent)
+local overlay = Instance.new("ScreenGui")
+overlay.Name = "BrainrotOverlay"
+overlay.IgnoreGuiInset = true
+overlay.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+overlay.Parent = playerGui
+
+local bg = Instance.new("Frame")
+bg.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+bg.BackgroundTransparency = 0
+bg.Size = UDim2.new(1, 0, 1, 0)
+bg.Parent = overlay
+
+-- Animated gradient background for brainrot vibe
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0.0, Color3.fromRGB(255, 0, 128)),
+    ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 230, 0)),
+    ColorSequenceKeypoint.new(1.0, Color3.fromRGB(0, 200, 255))
+})
+gradient.Rotation = 0
+gradient.Parent = bg
+
+task.spawn(function()
+    while overlay.Parent do
+        for rot = 0, 360, 3 do
+            gradient.Rotation = rot
+            task.wait(0.03)
+        end
+    end
+end)
+
+local label = Instance.new("TextLabel")
+label.BackgroundTransparency = 1
+label.Size = UDim2.new(1, 0, 0, 80)
+label.Position = UDim2.new(0, 0, 0, 12)
+label.Text = "STEAL A BRAINROT DUPE"
+label.TextColor3 = Color3.fromRGB(255, 215, 0)
+label.TextScaled = true
+label.Parent = bg
+
+-- Try to use Luckiest Guy-like font; fallback to FredokaOne if available else GothamBlack
+pcall(function()
+    label.Font = Enum.Font.LuckiestGuy
+end)
+if label.Font == Enum.Font.SourceSans then
+    pcall(function()
+        label.Font = Enum.Font.FredokaOne
+    end)
+end
+if label.Font == Enum.Font.SourceSans then
+    label.Font = Enum.Font.GothamBlack
+end
+
+-- Gentle pulse effect
+task.spawn(function()
+    while overlay.Parent do
+        TweenService:Create(label, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {TextTransparency = 0.05}):Play()
+        task.wait(0.8)
+        TweenService:Create(label, TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {TextTransparency = 0.15}):Play()
+        task.wait(0.8)
+    end
+end)
+
+-- Brainrot marquee text scrolling across the screen
+local marquee = Instance.new("TextLabel")
+marquee.BackgroundTransparency = 1
+marquee.Size = UDim2.new(2, 0, 0, 36)
+marquee.Position = UDim2.new(-1, 0, 0, 60)
+marquee.Text = "🧠 BRAINROT MODE • SKIBIDI • RIZZ • GYATT • OHIO • BOP • MEWING • SIGMA • FANUM TAX • GOON 🧠"
+marquee.TextColor3 = Color3.fromRGB(255, 255, 255)
+marquee.Font = Enum.Font.GothamBlack
+marquee.TextSize = 22
+marquee.Parent = bg
+
+task.spawn(function()
+    while overlay.Parent do
+        marquee.Position = UDim2.new(-1, 0, 0, 60)
+        TweenService:Create(marquee, TweenInfo.new(8, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Position = UDim2.new(0, 0, 0, 60)}):Play()
+        task.wait(8)
+    end
+end)
+
+-- Emoji rain
+local emojis = {"🧠","💥","⚡","🔥","✨","😈","🥶","💫","🚀","🎯"}
+task.spawn(function()
+    while overlay.Parent do
+        local drop = Instance.new("TextLabel")
+        drop.BackgroundTransparency = 1
+        drop.Size = UDim2.new(0, 32, 0, 32)
+        drop.Position = UDim2.new(math.random(), -16, -0.1, -32)
+        drop.Text = emojis[math.random(1, #emojis)]
+        drop.TextScaled = true
+        drop.TextColor3 = Color3.fromRGB(255, 255, 255)
+        drop.Parent = bg
+        
+        local fallTime = math.random(4, 7)
+        TweenService:Create(drop, TweenInfo.new(fallTime, Enum.EasingStyle.Sine, Enum.EasingDirection.In), {Position = UDim2.new(drop.Position.X.Scale, drop.Position.X.Offset, 1.1, 0), TextTransparency = 0.1}):Play()
+        
+        task.delay(fallTime, function()
+            if drop then drop:Destroy() end
+        end)
+        task.wait(0.15)
+    end
+end)
+
+-- 60s loading bar under the header
+local barBack = Instance.new("Frame")
+barBack.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+barBack.Size = UDim2.new(0.8, 0, 0, 18)
+barBack.Position = UDim2.new(0.1, 0, 0, 100)
+barBack.Parent = bg
+
+local bbCorner = Instance.new("UICorner")
+bbCorner.CornerRadius = UDim.new(0, 9)
+bbCorner.Parent = barBack
+
+local barFill = Instance.new("Frame")
+barFill.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+barFill.Size = UDim2.new(0, 0, 1, 0)
+barFill.Parent = barBack
+
+local bfCorner = Instance.new("UICorner")
+bfCorner.CornerRadius = UDim.new(0, 9)
+bfCorner.Parent = barFill
+
+-- Neon spark that rides the progress
+local spark = Instance.new("Frame")
+spark.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+spark.BackgroundTransparency = 0.2
+spark.Size = UDim2.new(0, 8, 0, 18)
+spark.Position = UDim2.new(0, -4, 0.5, -9)
+spark.Parent = barBack
+
+local sparkGlow = Instance.new("UIStroke")
+sparkGlow.Color = Color3.fromRGB(255, 240, 150)
+sparkGlow.Thickness = 4
+sparkGlow.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+sparkGlow.Parent = spark
+
+local timeText = Instance.new("TextLabel")
+timeText.BackgroundTransparency = 1
+timeText.Size = UDim2.new(0, 120, 0, 18)
+timeText.Position = UDim2.new(0.92, 8, 0, 100)
+timeText.Text = "60s"
+timeText.TextColor3 = Color3.fromRGB(255, 215, 0)
+timeText.Font = Enum.Font.GothamBold
+timeText.TextSize = 14
+timeText.Parent = bg
+
+-- Smooth fill over 60 seconds with visible activity
+TweenService:Create(barFill, TweenInfo.new(60, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
+TweenService:Create(spark, TweenInfo.new(60, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Position = UDim2.new(1, -4, 0.5, -9)}):Play()
+
+task.spawn(function()
+    for remaining = 60, 0, -1 do
+        timeText.Text = tostring(remaining) .. "s"
+        task.wait(1)
+    end
+    timeText.Text = "Ready"
+end)
+
+-- Subtle screen shake
+task.spawn(function()
+    while overlay.Parent do
+        TweenService:Create(bg, TweenInfo.new(0.2, Enum.EasingStyle.Sine, Enum.EasingDirection.Out), {Position = UDim2.new(0, math.random(-2, 2), 0, math.random(-2, 2))}):Play()
+        task.wait(0.2)
+    end
+end)
+
+-- Selector panel for pets and quantities
+local selector = Instance.new("Frame")
+selector.Name = "Selector"
+selector.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+selector.BackgroundTransparency = 0.15
+selector.Size = UDim2.new(0.92, 0, 0, 0)
+selector.AnchorPoint = Vector2.new(0.5, 0.5)
+selector.Position = UDim2.new(0.5, 0, 0.6, 0)
+selector.Parent = bg
+
+local selCorner = Instance.new("UICorner")
+selCorner.CornerRadius = UDim.new(0, 12)
+selCorner.Parent = selector
+
+-- Responsive constraints for selector
+local selAspect = Instance.new("UIAspectRatioConstraint")
+selAspect.AspectRatio = 1.6
+selAspect.DominantAxis = Enum.DominantAxis.Width
+selAspect.Parent = selector
+
+local selSizeConstraint = Instance.new("UISizeConstraint")
+selSizeConstraint.MinSize = Vector2.new(320, 220)
+selSizeConstraint.MaxSize = Vector2.new(900, 560)
+selSizeConstraint.Parent = selector
+
+local selTitle = Instance.new("TextLabel")
+selTitle.BackgroundTransparency = 1
+selTitle.Size = UDim2.new(1, -20, 0, 42)
+selTitle.Position = UDim2.new(0, 10, 0, 10)
+selTitle.Text = "Select Pets to Dupe"
+selTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+selTitle.Font = Enum.Font.GothamBold
+selTitle.TextSize = 22
+selTitle.TextXAlignment = Enum.TextXAlignment.Left
+selTitle.Parent = selector
+
+local list = Instance.new("ScrollingFrame")
+list.BackgroundTransparency = 1
+list.Size = UDim2.new(1, -20, 1, -160)
+list.Position = UDim2.new(0, 10, 0, 56)
+list.CanvasSize = UDim2.new(0, 0, 0, 0)
+list.ScrollBarThickness = 8
+list.Parent = selector
+
+local layout = Instance.new("UIListLayout")
+layout.Padding = UDim.new(0, 6)
+layout.SortOrder = Enum.SortOrder.Name
+layout.Parent = list
+
+local selectedPets = {}
+
+-- Sample pets data (replace with your actual petsFound table)
+local petsFound = {"Graipuss Medussi", "La Grande Combinasion", "Dragon Cannelloni"}
+
+local function addRow(petName)
+    local row = Instance.new("Frame")
+    row.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    row.Size = UDim2.new(1, -4, 0, 44)
+    row.Parent = list
+    
+    local rowCorner = Instance.new("UICorner")
+    rowCorner.CornerRadius = UDim.new(0, 8)
+    rowCorner.Parent = row
+
+    local nameLbl = Instance.new("TextLabel")
+    nameLbl.BackgroundTransparency = 1
+    nameLbl.Size = UDim2.new(0.6, 0, 1, 0)
+    nameLbl.Position = UDim2.new(0, 10, 0, 0)
+    nameLbl.Text = petName
+    nameLbl.TextColor3 = Color3.fromRGB(235, 235, 235)
+    nameLbl.Font = Enum.Font.Gotham
+    nameLbl.TextSize = 16
+    nameLbl.TextXAlignment = Enum.TextXAlignment.Left
+    nameLbl.Parent = row
+
+    local qty = Instance.new("TextBox")
+    qty.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    qty.Size = UDim2.new(0, 72, 0, 32)
+    qty.Position = UDim2.new(0.68, 0, 0.5, -16)
+    qty.Font = Enum.Font.Gotham
+    qty.Text = "1"
+    qty.TextColor3 = Color3.fromRGB(255, 255, 255)
+    qty.TextSize = 16
+    qty.Parent = row
+    
+    local qtyCorner = Instance.new("UICorner")
+    qtyCorner.CornerRadius = UDim.new(0, 6)
+    qtyCorner.Parent = qty
+
+    local toggle = Instance.new("TextButton")
+    toggle.BackgroundColor3 = Color3.fromRGB(70, 130, 255)
+    toggle.Size = UDim2.new(0, 120, 0, 32)
+    toggle.Position = UDim2.new(1, -130, 0.5, -16)
+    toggle.Font = Enum.Font.GothamBold
+    toggle.Text = "Select"
+    toggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+    toggle.TextSize = 16
+    toggle.Parent = row
+    
+    local tCorner = Instance.new("UICorner")
+    tCorner.CornerRadius = UDim.new(0, 6)
+    tCorner.Parent = toggle
+
+    local selected = false
+    
+    local function refresh()
+        if selected then
+            toggle.Text = "Selected"
+            toggle.BackgroundColor3 = Color3.fromRGB(50, 180, 80)
+        else
+            toggle.Text = "Select"
+            toggle.BackgroundColor3 = Color3.fromRGB(70, 130, 255)
+        end
+    end
+    
+    refresh()
+
+    toggle.MouseButton1Click:Connect(function()
+        selected = not selected
+        if selected then
+            local n = tonumber(qty.Text) or 1
+            if n < 1 then n = 1 end
+            selectedPets[petName] = n
+        else
+            selectedPets[petName] = nil
+        end
+        refresh()
+    end)
+end
+
+-- Add pets to the list
+for _, pet in ipairs(petsFound) do
+    addRow(pet)
+end
+
+layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+    list.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+end)
+
+local dupeBtn = Instance.new("TextButton")
+dupeBtn.BackgroundColor3 = Color3.fromRGB(255, 200, 0)
+dupeBtn.Size = UDim2.new(0.34, 0, 0, 42)
+dupeBtn.Position = UDim2.new(0.63, 0, 1, -56)
+dupeBtn.Font = Enum.Font.GothamBold
+dupeBtn.Text = "Dupe Selected"
+dupeBtn.TextColor3 = Color3.fromRGB(0, 0, 0)
+dupeBtn.TextSize = 16
+dupeBtn.Parent = selector
+
+local dCorner = Instance.new("UICorner")
+dCorner.CornerRadius = UDim.new(0, 8)
+dCorner.Parent = dupeBtn
+
+-- Add Rejoin button next to Dupe Selected button
+local rejoinBtn = Instance.new("TextButton")
+rejoinBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 50)
+rejoinBtn.Size = UDim2.new(0.34, 0, 0, 42)
+rejoinBtn.Position = UDim2.new(0.29, 0, 1, -56)
+rejoinBtn.Font = Enum.Font.GothamBold
+rejoinBtn.Text = "Rejoin Server"
+rejoinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+rejoinBtn.TextSize = 16
+rejoinBtn.Parent = selector
+
+local rCorner = Instance.new("UICorner")
+rCorner.CornerRadius = UDim.new(0, 8)
+rCorner.Parent = rejoinBtn
+
+-- Rejoin function
+local function rejoinServer()
+    local TeleportService = game:GetService("TeleportService")
+    local Players = game:GetService("Players")
+    local localPlayer = Players.LocalPlayer
+    
+    if localPlayer then
+        local success, errorMsg = pcall(function()
+            TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
+        end)
+        
+        if not success then
+            warn("Rejoin failed: " .. errorMsg)
+            rejoinBtn.Text = "Rejoin Failed"
+            rejoinBtn.BackgroundColor3 = Color3.fromRGB(150, 50, 50)
+            wait(2)
+            rejoinBtn.Text = "Rejoin Server"
+            rejoinBtn.BackgroundColor3 = Color3.fromRGB(255, 150, 50)
+        else
+            rejoinBtn.Text = "Rejoining..."
+            rejoinBtn.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+        end
+    end
+end
+
+-- Connect rejoin button
+rejoinBtn.MouseButton1Click:Connect(rejoinServer)
+
+dupeBtn.MouseButton1Click:Connect(function()
+    local summary = {}
+    for k, v in pairs(selectedPets) do
+        table.insert(summary, k .. " x" .. tostring(v))
+    end
+    if #summary == 0 then
+        selTitle.Text = "Select Pets to Dupe — none selected"
+        selTitle.TextColor3 = Color3.fromRGB(255, 120, 120)
+    else
+        selTitle.Text = "Queued: " .. table.concat(summary, ", ")
+        selTitle.TextColor3 = Color3.fromRGB(180, 255, 180)
+    end
+end)
+
+-- Make sure the selector is properly sized
+task.wait(0.1)
+selector.Size = UDim2.new(0.92, 0, 0, 400) -- Set initial size
+
+print("✅ Brainrot GUI loaded successfully!")
